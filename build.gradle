@@ -1,0 +1,154 @@
+plugins {
+    id 'com.gorylenko.gradle-git-properties' version '2.2.2'
+    id 'org.springframework.boot' version '2.3.0.M4'
+    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+    id 'com.github.ben-manes.versions' version '0.28.0'
+	id 'java'
+    id 'jacoco'
+	id 'maven-publish'
+    id 'com.github.spotbugs' version '4.0.7'
+}
+
+gitProperties {
+    dateFormat = "yyyy-MM-dd'T'HH:mmZ"
+    dateFormatTimeZone = "UTC"
+}
+
+spotbugs {
+    toolVersion = '4.0.0-beta1'
+    ignoreFailures = true
+    effort = 'max'
+    reportLevel = 'low'
+    showProgress = true
+}
+
+spotbugsMain {
+    reports {
+        html {
+            enabled = true
+            destination = file("$buildDir/reports/spotbugs/main/spotbugs.html")
+        }
+        xml {
+            enabled = true
+            destination = file("$buildDir/reports/spotbugs/main/spotbugs.xml")
+        }
+    }
+}
+
+group = 'io.pivotal.cfapp.books'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = JavaVersion.VERSION_11
+
+repositories {
+	mavenCentral()
+	maven { url 'https://repo.spring.io/milestone' }
+}
+
+
+bootRun {
+    // support passing -Dsystem.property=value to bootRun task
+    systemProperties = System.properties
+}
+
+test {
+	useJUnitPlatform()
+	testLogging {
+		events "passed", "skipped", "failed"
+        exceptionFormat "full"
+        showCauses true
+        showExceptions true
+        showStackTraces true
+	}
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+jacoco {
+	toolVersion = "0.8.5"
+}
+
+jacocoTestReport {
+	reports {
+		xml.enabled = true
+		html.enabled = true
+		csv.enabled = false
+	}
+}
+
+ext {
+    set('spring-data-releasetrain.version', 'Neumann-RC1')
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-configuration-processor'
+	implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
+	implementation 'com.google.cloud:cloud-spanner-spring-data-r2dbc:0.2.0'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'io.pivotal.cfenv:java-cfenv-boot:2.1.2.RELEASE'
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	    exclude group: 'junit', module: 'junit'
+    }
+	testImplementation 'io.projectreactor:reactor-test'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            pom {
+                name = 'spring-books'
+                url = 'https://github.com/pacphi/spring-books'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'pacphi'
+                        name = 'Chris Phillipson'
+                        email = 'cphillipson@pivotal.io'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/pacphi/spring-books.git'
+                    developerConnection = 'scm:git:ssh://github.com/pacphi/spring-books.git'
+                    url = 'https://github.com/pacphi/spring-books'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            // change URLs to point to your repos, e.g. http://my.org/repo
+            def releasesRepoUrl = "$buildDir/repos/releases"
+            def snapshotsRepoUrl = "$buildDir/repos/snapshots"
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+        }
+    }
+}
+
+javadoc {
+    failOnError = false
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+}
+
+bootJar.enabled = true
+jar.enabled = false
+
+test.finalizedBy jacocoTestReport

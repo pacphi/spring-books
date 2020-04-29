@@ -1,0 +1,8 @@
+---
+applications:
+- name: spring-books
+  memory: 1G
+  instances: 1
+  env:
+    JAVA_OPTS: -Djava.security.egd=file:///dev/urandom
+    SPRING_PROFILES_ACTIVE: cloud

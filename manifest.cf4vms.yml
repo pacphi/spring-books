@@ -1,0 +1,13 @@
+---
+applications:
+- name: spring-books
+  memory: 1G
+  random-route: true
+  stack: cflinuxfs3
+  path: build/libs/spring-books-0.1-SNAPSHOT.jar
+  instances: 1
+  env:
+    JAVA_OPTS: -Djava.security.egd=file:///dev/urandom
+    SPRING_PROFILES_ACTIVE: cloud
+    JBP_CONFIG_OPEN_JDK_JRE: '{ jre: { version: 11.+ } }'
+    JBP_CONFIG_SPRING_AUTO_RECONFIGURATION: '{ enabled: false }'
