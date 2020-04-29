@@ -2,8 +2,6 @@
 
 > A derivative work based upon the [cloud-spanner-spring-data-r2dbc-sample](https://github.com/GoogleCloudPlatform/cloud-spanner-r2dbc/tree/master/cloud-spanner-r2dbc-samples/cloud-spanner-spring-data-r2dbc-sample).
 
-This sample creates a table called `BOOK` on application startup, and deletes it prior to application shutdown.
-
 ## Prerequisites
 
 * A valid GCP account and [project](https://cloud.google.com/resource-manager/docs/creating-managing-projects) id
@@ -32,6 +30,8 @@ cd spring-books
 ```
 
 ## Run
+
+This sample creates a table called `BOOK` on application startup, and deletes it prior to application shutdown.
 
 ### Locally
 
@@ -76,7 +76,7 @@ Create a database within the instance
 ```
 gcloud spanner databases create library --instance={name}
 ```
-> Replace the occurrence of `{name}` above with instance name of your spanner-sandbox-instance.  
+> Replace the occurrence of `{name}` above with instance name of your spanner-sandbox-instance.
 
 > A single service instance may support multiple databases. In this case we're creating a database named `library`.
 
@@ -85,7 +85,7 @@ Push the app
 ```
 cf push
 ```
-> The supplied `manifest.yml` sets the required environment variables. 
+> The supplied `manifest.yml` sets the required environment variables.
 
 > Java Config via [java-cfenv](https://github.com/pivotal-cf/java-cfenv) takes care to auto-fetch Google Spanner instance credentials at startup which are used to setup a connection and support on-demand database transactions.
 
