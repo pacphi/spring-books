@@ -29,13 +29,4 @@ public class SpannerSettings {
         return this.project;
     }
 
-    @Override
-    public String toString() {
-        return "{" +
-            " database='" + database + "'" +
-            ", instance='" + instance + "'" +
-            ", project='" + project + "'" +
-            "}";
-    }
-
 }

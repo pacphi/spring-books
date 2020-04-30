@@ -1,13 +1,19 @@
 package io.pivotal.cfapp.books.springbooks;
 
 import static com.google.cloud.spanner.r2dbc.SpannerConnectionFactoryProvider.DRIVER_NAME;
+import static com.google.cloud.spanner.r2dbc.SpannerConnectionFactoryProvider.GOOGLE_CREDENTIALS;
 import static com.google.cloud.spanner.r2dbc.SpannerConnectionFactoryProvider.INSTANCE;
 import static io.r2dbc.spi.ConnectionFactoryOptions.DATABASE;
 import static io.r2dbc.spi.ConnectionFactoryOptions.DRIVER;
 import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.URI;
+
+import com.google.auth.oauth2.GoogleCredentials;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,6 +51,9 @@ public class AppInit {
 
   private static final String GCP_PROJECT = System.getProperty("gcp.project");
 
+  private static final String GCP_SERVICE_ACCOUNT_KEY_JSON_FILE = System.getProperty("gcp.service_account_key_json_file");
+
+
   @Autowired
   private DatabaseClient r2dbcClient;
 
@@ -57,11 +66,18 @@ public class AppInit {
   public static class DefaultConfig {
 
     @Bean
-    ConnectionFactory spannerConnectionFactory(@Value("${spanner.database}") String database) {
+    ConnectionFactory spannerConnectionFactory(
+      @Value("${spanner.database}") String database,
+      @Value("${gcp.service_account_json}") String serviceAccountKeyJsonFile) throws IOException {
+
       Assert.notNull(INSTANCE, "Please provide spanner.instance property");
       Assert.notNull(GCP_PROJECT, "Please provide gcp.project property");
+      Assert.notNull(GCP_SERVICE_ACCOUNT_KEY_JSON_FILE, "Please provide gcp.service_account_key_json_file property");
+
+      GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(serviceAccountKeyJsonFile));
       ConnectionFactory connectionFactory = ConnectionFactories.get(ConnectionFactoryOptions.builder()
         .option(Option.valueOf("project"), GCP_PROJECT)
+        .option(GOOGLE_CREDENTIALS, credentials)
         .option(DRIVER, DRIVER_NAME)
         .option(INSTANCE, SPANNER_INSTANCE)
         .option(DATABASE, database)
@@ -77,10 +93,14 @@ public class AppInit {
   public static class CloudConfig {
 
     @Bean
-    ConnectionFactory spannerConnectionFactory(@Autowired SpannerSettings settings) {
-      log.trace("Spanner settings are " + settings.toString());
+    ConnectionFactory spannerConnectionFactory(
+      SpannerSettings settings,
+      @Value("${gcp.service_account_key_json}") String serviceAccountKeyJson) throws IOException {
+
+      GoogleCredentials credentials = GoogleCredentials.fromStream(new ByteArrayInputStream(serviceAccountKeyJson.getBytes()));
       ConnectionFactory connectionFactory = ConnectionFactories.get(ConnectionFactoryOptions.builder()
         .option(Option.valueOf("project"), settings.getProject())
+        .option(GOOGLE_CREDENTIALS, credentials)
         .option(DRIVER, DRIVER_NAME)
         .option(INSTANCE, settings.getInstance())
         .option(DATABASE, settings.getDatabase())
