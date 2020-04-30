@@ -40,9 +40,10 @@ Run the sample from the command line, providing the following properties
 * `spanner.instance`
 * `spanner.database`
 * `gcp.project`
+* `gcp.service_account_key_json_file`
 
 ```
-./gradlew bootRun -Dspring-boot.run.jvmArguments="-Dspanner.instance=[SPANNER-INSTANCE] -Dspanner.database=[SPANNER-DATABASE] -Dgcp.project=GCP-PROJECT"
+./gradlew bootRun -Dspring-boot.run.jvmArguments="-Dspanner.instance={SPANNER-INSTANCE} -Dspanner.database={SPANNER-DATABASE} -Dgcp.project={GCP-PROJECT} -Dgcp.service_account_key_json_file={PATH-TO-ACCOUNT-KEY-JSON-FILE}"
 ```
 
 Visit http://localhost:8080/index.html in your favorite browser.
@@ -80,14 +81,34 @@ gcloud spanner databases create library --instance={name}
 
 > A single service instance may support multiple databases. In this case we're creating a database named `library`.
 
-Push the app
+Push the app (but don't start it up)
 
 ```
-cf push
+cf push --no-start
 ```
 > The supplied `manifest.yml` sets the required environment variables.
 
-> Java Config via [java-cfenv](https://github.com/pivotal-cf/java-cfenv) takes care to auto-fetch Google Spanner instance credentials at startup which are used to setup a connection and support on-demand database transactions.
+> Java Config via [java-cfenv](https://github.com/pivotal-cf/java-cfenv) will take care to auto-fetch Google Spanner instance credentials at startup which are used to setup a connection and support on-demand database transactions.
+
+Bind the Google Spanner service instance to the app
+
+```
+cf bind-service spring-books spanner-sandbox-instance
+```
+
+Set an environment variable
+
+```
+cf set-env spring-books GCP_SERVICE_ACCOUNT_KEY_JSON '{key-file-contents}'
+```
+
+> We need to set an environment variable that contains the content of the service account JSON key file in order to authenticate requests from the application to the Google Spanner instance. Replace `{key-file-contents}` above with an actual service account key in JSON format.
+
+Start the app
+
+```
+cf start spring-books
+```
 
 Visit the route for the app you just pushed in your favorite browser.
 
@@ -100,3 +121,11 @@ Try the different actions available:
 * listing books
 * adding a new book
 * searching for a book by its ID
+
+## Teardown
+
+```
+cf unbind-service spring-books spanner-sandbox-instance
+cf delete-service spanner-sandbox-instance -f
+cf delete spring-books -r -f
+```

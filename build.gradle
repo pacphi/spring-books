@@ -1,7 +1,8 @@
 plugins {
-    id 'org.springframework.boot' version '2.3.0.M4'
+    id 'org.springframework.boot' version '2.2.6.RELEASE'
     id 'io.spring.dependency-management' version '1.0.9.RELEASE'
     id 'com.github.ben-manes.versions' version '0.28.0'
+    id 'io.franzbecker.gradle-lombok' version '3.3.0'
 	id 'java'
     id 'jacoco'
 	id 'maven-publish'
@@ -72,14 +73,14 @@ jacocoTestReport {
 	}
 }
 
-ext {
-    set('spring-data-releasetrain.version', 'Neumann-RC1')
-}
-
 dependencies {
+    annotationProcessor('org.projectlombok:lombok')
+    implementation('org.projectlombok:lombok')
 	implementation 'org.springframework.boot:spring-boot-configuration-processor'
-	implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
+	//implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
+    implementation 'org.springframework.boot.experimental:spring-boot-starter-data-r2dbc:0.1.0.M3'
 	implementation 'com.google.cloud:cloud-spanner-spring-data-r2dbc:0.2.0'
+    implementation 'org.springframework.boot:spring-boot-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'io.pivotal.cfenv:java-cfenv-boot:2.1.2.RELEASE'
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
@@ -135,7 +136,23 @@ publishing {
     }
 }
 
+import io.franzbecker.gradle.lombok.task.DelombokTask
+
+task delombok(type: DelombokTask, dependsOn: compileJava) {
+    ext.outputDir = file("$buildDir/delombok")
+    outputs.dir(outputDir)
+    sourceSets.main.java.srcDirs.each {
+        inputs.dir(it)
+        args(it, "-d", outputDir)
+    }
+    doFirst {
+        outputDir.deleteDir()
+    }
+}
+
 javadoc {
+    dependsOn delombok
+    source = delombok.outputDir
     failOnError = false
     if(JavaVersion.current().isJava9Compatible()) {
         options.addBooleanOption('html5', true)

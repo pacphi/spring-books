@@ -1,0 +1,21 @@
+spanner:
+  database: library
+
+logging:
+  level:
+    root: WARN
+    io.pivotal.cfapp: TRACE
+    io.pivotal.cfenv.spring.boot: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: beans,configprops,env,info,health,metrics,loggers
+
+---
+spring:
+  profiles: cloud
+
+  main:
+    cloud-platform: CLOUD_FOUNDRY
