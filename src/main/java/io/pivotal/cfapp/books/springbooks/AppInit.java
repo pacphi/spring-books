@@ -9,8 +9,6 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 
 import java.net.URI;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -32,6 +30,7 @@ import io.r2dbc.spi.ConnectionFactories;
 import io.r2dbc.spi.ConnectionFactory;
 import io.r2dbc.spi.ConnectionFactoryOptions;
 import io.r2dbc.spi.Option;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Driver application showing Cloud Spanner R2DBC use with Spring Data.
@@ -39,9 +38,8 @@ import io.r2dbc.spi.Option;
 @SpringBootApplication
 @EnableR2dbcRepositories
 @ConfigurationPropertiesScan
+@Slf4j
 public class AppInit {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(AppInit.class);
 
   private static final String SPANNER_INSTANCE = System.getProperty("spanner.instance");
 
@@ -80,6 +78,7 @@ public class AppInit {
 
     @Bean
     ConnectionFactory spannerConnectionFactory(@Autowired SpannerSettings settings) {
+      log.trace("Spanner settings are " + settings.toString());
       ConnectionFactory connectionFactory = ConnectionFactories.get(ConnectionFactoryOptions.builder()
         .option(Option.valueOf("project"), settings.getProject())
         .option(DRIVER, DRIVER_NAME)
@@ -94,7 +93,7 @@ public class AppInit {
 
   @EventListener(ApplicationReadyEvent.class)
   public void setUpData() {
-    LOGGER.info("Setting up test table BOOK...");
+    log.trace("Setting up test table BOOK...");
     try {
       r2dbcClient.execute("CREATE TABLE BOOK ("
           + "  ID STRING(36) NOT NULL,"
@@ -102,24 +101,24 @@ public class AppInit {
           + ") PRIMARY KEY (ID)")
           .fetch().rowsUpdated().block();
     } catch (Exception e) {
-      LOGGER.info("Failed to set up test table BOOK", e);
+      log.trace("Failed to set up test table BOOK", e);
       return;
     }
-    LOGGER.info("Finished setting up test table BOOK");
+    log.trace("Finished setting up test table BOOK");
   }
 
   @EventListener({ContextClosedEvent.class})
   public void tearDownData() {
-    LOGGER.info("Deleting test table BOOK...");
+    log.trace("Deleting test table BOOK...");
     try {
       r2dbcClient.execute("DROP TABLE BOOK")
           .fetch().rowsUpdated().block();
     } catch (Exception e) {
-      LOGGER.info("Failed to delete test table BOOK", e);
+      log.trace("Failed to delete test table BOOK", e);
       return;
     }
 
-    LOGGER.info("Finished deleting test table BOOK.");
+    log.trace("Finished deleting test table BOOK");
   }
 
 

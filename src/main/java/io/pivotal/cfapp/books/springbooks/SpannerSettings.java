@@ -17,19 +17,25 @@ public class SpannerSettings {
         this.project = project;
     }
 
-
     public String getDatabase() {
         return this.database;
     }
-
 
     public String getInstance() {
         return this.instance;
     }
 
-
     public String getProject() {
         return this.project;
+    }
+
+    @Override
+    public String toString() {
+        return "{" +
+            " database='" + database + "'" +
+            ", instance='" + instance + "'" +
+            ", project='" + project + "'" +
+            "}";
     }
 
 }
