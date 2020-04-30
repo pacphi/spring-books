@@ -77,6 +77,7 @@ dependencies {
 	//implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
     implementation 'org.springframework.boot.experimental:spring-boot-starter-data-r2dbc:0.1.0.M3'
 	implementation 'com.google.cloud:cloud-spanner-spring-data-r2dbc:0.2.0'
+    implementation 'org.springframework.boot:spring-boot-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'io.pivotal.cfenv:java-cfenv-boot:2.1.2.RELEASE'
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
