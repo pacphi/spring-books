@@ -121,3 +121,11 @@ Try the different actions available:
 * listing books
 * adding a new book
 * searching for a book by its ID
+
+## Teardown
+
+```
+cf unbind-service spring-books spanner-sandbox-instance
+cf delete-service spanner-sandbox-instance -f
+cf delete spring-books -r -f
+```
