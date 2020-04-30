@@ -1,5 +1,5 @@
 plugins {
-    id 'org.springframework.boot' version '2.3.0.M4'
+    id 'org.springframework.boot' version '2.2.6.RELEASE'
     id 'io.spring.dependency-management' version '1.0.9.RELEASE'
     id 'com.github.ben-manes.versions' version '0.28.0'
 	id 'java'
@@ -72,13 +72,10 @@ jacocoTestReport {
 	}
 }
 
-ext {
-    set('spring-data-releasetrain.version', 'Neumann-RC1')
-}
-
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-configuration-processor'
-	implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
+	//implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
+    implementation 'org.springframework.boot.experimental:spring-boot-starter-data-r2dbc:0.1.0.M3'
 	implementation 'com.google.cloud:cloud-spanner-spring-data-r2dbc:0.2.0'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'io.pivotal.cfenv:java-cfenv-boot:2.1.2.RELEASE'
