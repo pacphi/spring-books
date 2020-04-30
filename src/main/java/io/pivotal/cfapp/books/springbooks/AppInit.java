@@ -8,7 +8,6 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
 import java.net.URI;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -28,8 +28,6 @@ import org.springframework.util.Assert;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
-import io.pivotal.cfenv.core.CfEnv;
-import io.pivotal.cfenv.core.CfService;
 import io.r2dbc.spi.ConnectionFactories;
 import io.r2dbc.spi.ConnectionFactory;
 import io.r2dbc.spi.ConnectionFactoryOptions;
@@ -40,6 +38,7 @@ import io.r2dbc.spi.Option;
  */
 @SpringBootApplication
 @EnableR2dbcRepositories
+@ConfigurationPropertiesScan
 public class AppInit {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AppInit.class);
@@ -80,20 +79,12 @@ public class AppInit {
   public static class CloudConfig {
 
     @Bean
-    public CfEnv cfEnv() {
-      return new CfEnv();
-    }
-
-    @Bean
-    ConnectionFactory spannerConnectionFactory(@Value("${spanner.database}") String database) {
-      List<CfService> spannerServiceInstances = cfEnv().findServicesByTag("gcp", "spanner");
-      Assert.isTrue(spannerServiceInstances.size() == 1, "Only one spanner.instance may exist in the same space");
-      CfService spannerServiceInstance = spannerServiceInstances.get(0);
+    ConnectionFactory spannerConnectionFactory(@Autowired SpannerSettings settings) {
       ConnectionFactory connectionFactory = ConnectionFactories.get(ConnectionFactoryOptions.builder()
-        .option(Option.valueOf("project"), spannerServiceInstance.getString("ProjectId"))
+        .option(Option.valueOf("project"), settings.getProject())
         .option(DRIVER, DRIVER_NAME)
-        .option(INSTANCE, spannerServiceInstance.getString("instance_id"))
-        .option(DATABASE, database)
+        .option(INSTANCE, settings.getInstance())
+        .option(DATABASE, settings.getDatabase())
         .build());
 
       return connectionFactory;
