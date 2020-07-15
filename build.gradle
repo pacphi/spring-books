@@ -81,7 +81,7 @@ dependencies {
 	implementation 'com.google.cloud:cloud-spanner-spring-data-r2dbc:0.2.0'
     implementation 'org.springframework.boot:spring-boot-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
-	implementation 'io.pivotal.cfenv:java-cfenv-boot:2.1.2.RELEASE'
+	implementation 'io.pivotal.cfenv:java-cfenv-boot:2.2.2.RELEASE'
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 	    exclude group: 'junit', module: 'junit'
