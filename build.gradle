@@ -1,12 +1,12 @@
 plugins {
     id 'org.springframework.boot' version '2.3.3.RELEASE'
     id 'io.spring.dependency-management' version '1.0.10.RELEASE'
-    id 'com.github.ben-manes.versions' version '0.34.0'
+    id 'com.github.ben-manes.versions' version '0.36.0'
     id 'io.franzbecker.gradle-lombok' version '4.0.0'
 	id 'java'
     id 'jacoco'
 	id 'maven-publish'
-    id 'com.github.spotbugs' version '4.5.1'
+    id 'com.github.spotbugs' version '4.6.0'
 }
 
 spotbugs {
@@ -81,7 +81,7 @@ dependencies {
 	implementation 'com.google.cloud:cloud-spanner-spring-data-r2dbc:0.2.0'
     implementation 'org.springframework.boot:spring-boot-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
-	implementation 'io.pivotal.cfenv:java-cfenv-boot:2.2.2.RELEASE'
+	implementation 'io.pivotal.cfenv:java-cfenv-boot:2.2.3.RELEASE'
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 	    exclude group: 'junit', module: 'junit'
